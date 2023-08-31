@@ -1,0 +1,88 @@
+.message-editor-page {
+    .page-content {
+     background-color: #282c34;
+     min-height: 100vh;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     color: white;
+   }
+
+   .button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 3px solid #61dafb;
+    cursor: pointer;
+    text-decoration: none;
+    line-height: 13px;
+  }
+
+  .variables-input {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 3px solid #61dafb;
+  }
+  .template-input{
+    margin-top: 10px;
+    width: 600px;
+    height: 100px;
+    padding: 10px 10px;
+    border: 3px solid #61dafb;
+    border-radius: 20px;
+  }
+
+  .if-else-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 3px solid #61dafb;
+    cursor: pointer;
+
+    .if-else-wrapper {
+        padding: 3px;
+        border-radius: 5px;
+        border: 1px solid #61dafb;
+        margin: 5px;
+        color: #61dafb;  
+    }
+  }
+
+  .condition-block {
+    width: 600px;
+    margin-top: 10px;
+    .condition-group {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px;
+
+        .label-input {
+            display: block;
+            box-sizing: border-box;
+            height: 30px;
+            padding: 3px;
+            border-radius: 5px;
+            border: 1px solid #61dafb;
+            margin: 5px;
+            color: #61dafb; 
+        }
+
+        .condition-text {
+          width: 400px;
+          height: 80px;
+          padding: 10px 10px;
+          border: 3px solid #61dafb;
+          border-radius: 20px;
+      }
+
+        .condition-text-if {
+            width: 400px;
+            height: 43px;
+            padding: 10px 10px;
+            border: 3px solid #61dafb;
+            border-radius: 20px;
+        }
+    }
+  }
+} 
