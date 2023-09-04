@@ -13,6 +13,7 @@ export interface ITextTemplate {
 
 interface ISplitHandler {
     onSplit(source: ITextTemplate, leftPart: string, rightPart: string) : void;
+    onDelete(source: ITextTemplate): void;
 }
 
 let counter = 0;
@@ -20,8 +21,8 @@ let counter = 0;
 export class SimpleTextTemplate implements ITextTemplate {
     _id: number;
     _simpleText: string;
-    _splitHandler: ISplitHandler;
-    constructor(text: string, splitHandler: ISplitHandler){
+    _splitHandler: ISplitHandler | null;
+    constructor(text: string, splitHandler: ISplitHandler | null){
         this._id = counter;
         counter += 1;
         this._simpleText = text;
@@ -37,7 +38,12 @@ export class SimpleTextTemplate implements ITextTemplate {
     }
 
     split(pos: number): void {
-        console.log(`split(${pos}) text=${this._simpleText}`)
+        if (!this._splitHandler) {
+            console.log("can't split, no handler");
+            return;
+        }
+
+        // console.log(`split(${pos}) text=${this._simpleText}`)
         if (pos > this._simpleText.length) {
             throw new Error("splitting pos is out of range");
         }
@@ -79,7 +85,7 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
         this._childrenChangedListener = value;
     }
 
-    get children() : Array<ITextTemplate> {
+    get children(): Array<ITextTemplate> {
         return this._children;
     }
 
@@ -92,8 +98,9 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
         
         let newItems: Array<ITextTemplate> = [
           new SimpleTextTemplate(leftPart, this),
-          new ConditionBlockTemplate(),
+          new ConditionBlockTemplate(this),
           new SimpleTextTemplate(rightPart, this),
+          
         ];
         this._children.splice(childIndex, 1, ...newItems);
 
@@ -107,20 +114,39 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
     generateText (variables:Map<String, String>): string {
         let res = "";
         this._children.forEach(child => {
-            res += child.generateText(variables);
+            res += child.generateText(variables) + "\n";
         });
 
         return res;
     }
+
+    onDelete(source: ITextTemplate){
+        this._children = this.children.filter((child) => child.id !== source.id);
+        if (this._childrenChangedListener) {
+            this._childrenChangedListener([...this._children]);
+        }
+        let newText = this.generateText(new Map());
+        let newItem = new  SimpleTextTemplate(newText, this);
+        this._children.splice(0, this._children.length, newItem);
+        if (this._childrenChangedListener) {
+            this._childrenChangedListener([...this._children]);
+        }
+
+        console.log(`delete inside compound block, children: ${this._children}`)
+    }
 };
 
-export class ConditionBlockTemplate implements ITextTemplate, ISplitHandler {
-    ifBlock: SimpleTextTemplate = new SimpleTextTemplate("put condition here", this);
+export class ConditionBlockTemplate implements ITextTemplate {
+    ifBlock: SimpleTextTemplate = new SimpleTextTemplate("put condition here", null);
     thenBlock: CompoundTextTemplate = new CompoundTextTemplate("put then else text here");
     elseBlock: CompoundTextTemplate = new CompoundTextTemplate("put else text here");
-    _id: number;
 
-    constructor() {
+    _id: number;
+    _delete:any;
+    _splitHandler: ISplitHandler;
+
+    constructor(splitHandler: ISplitHandler) {
+        this._splitHandler = splitHandler;
         this._id = counter;
         counter +=1;
     }
@@ -129,10 +155,6 @@ export class ConditionBlockTemplate implements ITextTemplate, ISplitHandler {
         return this._id;
     }
 
-    onSplit(source: ITextTemplate, leftPart: string, rightPart: string): void {
-        console.log("ignore split inside if block");
-    }
-    
     generateText(variables: Map<String, String>): string {
         const ifEvaluated = this.ifBlock.generateText(variables);
         if (ifEvaluated.length > 0) {
@@ -145,7 +167,10 @@ export class ConditionBlockTemplate implements ITextTemplate, ISplitHandler {
     render() : any {
         return ConditionBlock;
     }
-    
+
+    delete() {
+        this._splitHandler.onDelete(this);
+    }
 }
 
 export class AddConditionEventSource {
@@ -160,5 +185,27 @@ export class AddConditionEventSource {
     }
 }
 
+export class AddVariableEventSource {
+    private _callback: any;
+    private _variable: string
+    constructor(variable: string){
+        this._variable = variable;
+    }
+    get callback() : any {
+        return this._callback;
+    }
+    set callback(value: any) {
+        this._callback = value;
+    }
+
+    get variable() : any {
+        return this._variable;
+    }
+    set variable(value: any) {
+        this._variable = value;
+    }
+}
+
 export const AddConditionContext = React.createContext(new AddConditionEventSource());
 
+export const AddVariableContext = React.createContext(new AddVariableEventSource(''));
