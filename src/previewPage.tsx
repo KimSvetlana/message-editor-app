@@ -1,48 +1,27 @@
 import React, { useState } from "react";
 import "./startPage.css";
 import "./previewPage.css";
+import { CompoundText } from "./compoundText";
+import { SimpleText } from "./simpleText";
 
-let textNode = {
-    text: '',
-    condition :{
-       ifExist: 'boolean',
-       thenText : '',
-       elseText:'',
-   },
-}
 
 function PreviewPage(props: any) {
   console.log("preview", JSON.parse(localStorage.getItem("variables") || "{}"));
-  let variablesName: string[] = JSON.parse(
+  let variablesNames: string[] = JSON.parse(
     localStorage.getItem("variables") || "{}"
   );
-  const text = JSON.parse(localStorage.getItem("template") || "{}");
-  const [template, setCurrentState] = useState(text);
-  const [variableValues, setVariableValues] = useState( new Map<String, String>());
 
-//   const generateTextOutput = (t: MessageTemplate, vars: Map<String, String>) => {
-//     return "";
-//   }
-
-  const generateText = () => {
-    let newText = text;
-    variableValues.forEach((varValue, varName) => {
-      newText = newText.replace(`{${varName}}`, varValue);
-    });
-
-    return newText;
-  };
+  let variablesInitial = new Map<string, string>(variablesNames.map(varName => [varName, ""]));
+  const [variableValues, setVariableValues] = useState(variablesInitial);
+  const [displayText, setDisplayText] = useState(props.template.generateText(variablesInitial));
 
   const inputChange = (event: any) => {
     let varName = event.target.id;
     let value = event.target.value;
     variableValues.set(varName, value);
     console.log(`variables: ${variableValues}`)
-
-    setCurrentState(generateText());
+    setDisplayText(props.template.generateText(variableValues));
   };
-
-  const templateChange = () => {};
 
   return (
     <div className="start-page">
@@ -51,15 +30,11 @@ function PreviewPage(props: any) {
             <h3>Message preview</h3>
             <button name='close' onClick={props.previewClose}>Close</button>
         </div>
-        <div className="template">
-          <textarea
-            onChange={templateChange}
-            className="template-input"
-            value={template || ""}
-          ></textarea>
+        <div className="template">        
+              {displayText}                 
         </div>
         <div className="button-group">
-          {variablesName?.map((varName: string) => (
+          {variablesNames?.map((varName: string) => (
             <div key={`div_${varName}`}>
               <label key={`label_${varName}`} htmlFor={varName}>
                 {varName}

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import "./simpleText.css";
-import {SimpleTextTemplate, AddConditionContext, AddConditionEventSource, AddVariableEventSource, AddVariableContext} from "./utils"
+import {SimpleTextTemplate, AddConditionContext, AddConditionEventSource, AddVariableEventSource, AddVariableContext} from "./model"
 
 export function SimpleText(props: any) {
     const [simpleText, setSimpleText] = useState(props.templateObject as SimpleTextTemplate);

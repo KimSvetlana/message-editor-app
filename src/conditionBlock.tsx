@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./messageEditor.css";
-import { ConditionBlockTemplate } from "./utils";
+import { ConditionBlockTemplate } from "./model";
 import { SimpleText } from "./simpleText";
 import { CompoundText } from "./compoundText";
 

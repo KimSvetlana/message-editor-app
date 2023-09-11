@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./messageEditor.css";
 
-import {CompoundTextTemplate, ITextTemplate} from  "./utils";
+import {CompoundTextTemplate, ITextTemplate} from  "./model";
 
 
 export function CompoundText(props:any) {

@@ -3,7 +3,7 @@ import "./messageEditor.css";
 import Modal from "react-modal";
 import ConditionBlock from "./conditionBlock";
 import PreviewPage from "./previewPage";
-import {AddConditionContext, AddConditionEventSource, CompoundTextTemplate, AddVariableContext} from "./utils"
+import {AddConditionContext, AddConditionEventSource, CompoundTextTemplate, AddVariableContext} from "./model"
 import { CompoundText } from "./compoundText";
 
 
@@ -23,6 +23,7 @@ function MessageEditor() {
         console.log('generateText');
         console.log(templateRoot.generateText(variablesName));
       setPreviewIsOpen(true);
+      console.log('preview text', templateRoot.generateText(new Map));
 
     };
     
@@ -91,7 +92,7 @@ return (
         </div>
       </div>
 
-      <Modal isOpen={previewIsOpen} onRequestClose={closePreview}>{<PreviewPage previewClose={closePreview}/>}</Modal>
+      <Modal isOpen={previewIsOpen} onRequestClose={closePreview}>{<PreviewPage previewClose={closePreview}  template={templateRoot}/>}</Modal>
 
     </div>
   );
