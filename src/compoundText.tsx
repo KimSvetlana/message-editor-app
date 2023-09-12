@@ -9,8 +9,6 @@ export function CompoundText(props:any) {
     const [children, setChildren] = useState(compoundText.children);
 
     compoundText.childrenChangedListener = (newChildren: Array<ITextTemplate>) => {
-        console.log("children changed: ", newChildren);
-        // setCompoundTemplate(compoundTemplate);
         setChildren(newChildren);
     }
     

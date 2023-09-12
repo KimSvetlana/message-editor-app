@@ -4,9 +4,7 @@
     box-sizing: border-box;
 }
 
-.start-page,
-.variables-page {
-
+.start-page {
    .page-content {
     background-color: #282c34;
     min-height: 100vh;
@@ -56,5 +54,4 @@
     border: 3px solid #61dafb;
     border-radius: 20px;
   }
- 
 }

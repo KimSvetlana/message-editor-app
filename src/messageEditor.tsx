@@ -3,34 +3,34 @@ import "./messageEditor.css";
 import Modal from "react-modal";
 import ConditionBlock from "./conditionBlock";
 import PreviewPage from "./previewPage";
-import {AddConditionContext, AddConditionEventSource, CompoundTextTemplate, AddVariableContext} from "./model"
+import {
+  AddConditionContext,
+  AddConditionEventSource,
+  CompoundTextTemplate,
+  AddVariableContext,
+} from "./model";
 import { CompoundText } from "./compoundText";
-
 
 function MessageEditor() {
   let variablesName = localStorage.arrVarNames
     ? JSON.parse(localStorage.arrVarNames)
     : ["firstname", "lastname", "company", "position"];
 
-  
-  const addVariableContext =  React.useContext(AddVariableContext);
+  const addVariableContext = React.useContext(AddVariableContext);
   const addConditionEventSource = React.useContext(AddConditionContext);
 
-  const [templateRoot, setTemplateRoot] = useState(new CompoundTextTemplate("initial text"));  
+  const [templateRoot, setTemplateRoot] = useState(
+    new CompoundTextTemplate("initial text")
+  );
   const [previewIsOpen, setPreviewIsOpen] = useState(false);
-  
-  const openPreview = () => {
-        console.log('generateText');
-        console.log(templateRoot.generateText(variablesName));
-      setPreviewIsOpen(true);
-      console.log('preview text', templateRoot.generateText(new Map));
 
-    };
-    
-    const saveTemplate = (event: any) => {
-      localStorage.setItem("variables", JSON.stringify(variablesName));
-    //   localStorage.setItem("template", JSON.stringify(template));
-    };
+  const openPreview = () => {
+    setPreviewIsOpen(true);
+  };
+
+  const saveTemplate = (event: any) => {
+    localStorage.setItem("variables", JSON.stringify(variablesName));
+  };
 
   const closePreview = () => {
     setPreviewIsOpen(false);
@@ -40,22 +40,18 @@ function MessageEditor() {
     addVariableContext.variable = event.target.id;
     const callback = addVariableContext.callback();
     if (callback) {
-        callback();
+      callback();
     }
-  };  
+  };
 
   const addIfElseBlock = (event: any) => {
     const callback = addConditionEventSource.callback;
     if (callback) {
-        callback();
+      callback();
     }
   };
 
-  const deleteIfElseBlock = (event: any) => {
-
-  };
-
-return (
+  return (
     <div className="message-editor-page">
       <div className="page-content">
         <h3>Massage Template Editor</h3>
@@ -67,8 +63,8 @@ return (
               id={varName}
               className="button"
               onClick={varButtonClick}
-              >
-              {varName}
+            >
+              {`{${varName}}`}
             </button>
           ))}
         </div>
@@ -83,17 +79,25 @@ return (
           else_value
         </div>
 
-        <CompoundText templateObject={templateRoot} identityClass='template-input'></CompoundText>
+        <CompoundText
+          templateObject={templateRoot}
+          identityClass="template-input"
+        ></CompoundText>
 
         <div className="savePanel">
-          <button className="button" onClick={openPreview}>Preview</button>
-          <button className="button" onClick={saveTemplate}>Save</button>
+          <button className="button" onClick={openPreview}>
+            Preview
+          </button>
+          <button className="button" onClick={saveTemplate}>
+            Save
+          </button>
           <button className="button">Close</button>
         </div>
       </div>
 
-      <Modal isOpen={previewIsOpen} onRequestClose={closePreview}>{<PreviewPage previewClose={closePreview}  template={templateRoot}/>}</Modal>
-
+      <Modal isOpen={previewIsOpen} onRequestClose={closePreview}>
+        {<PreviewPage previewClose={closePreview} template={templateRoot} />}
+      </Modal>
     </div>
   );
 }

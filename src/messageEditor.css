@@ -1,5 +1,5 @@
 .message-editor-page {
-    .page-content {
+  .page-content {
      background-color: #282c34;
      min-height: 100vh;
      display: flex;
@@ -11,11 +11,12 @@
    .button {
     margin-top: 10px;
     padding: 10px 20px;
-    border-radius: 20px;
-    border: 3px solid #61dafb;
+    border-radius: 10px;
+    border: 2px solid #61dafb;
     cursor: pointer;
     text-decoration: none;
     line-height: 13px;
+    margin-left: 10px;
   }
 
   .variables-input {
@@ -24,6 +25,7 @@
     border-radius: 20px;
     border: 3px solid #61dafb;
   }
+
   .template-input{
     margin-top: 10px;
     width: 600px;
@@ -56,6 +58,15 @@
         display: flex;
         justify-content: space-between;
         margin: 10px;
+
+        .delete-button {
+          padding: 5px;
+          height: 30px;
+          border-radius: 5px;
+          border: 1px solid #61dafb;
+          color: #282c34;
+          cursor: pointer;
+        }
 
         .label-input {
             display: block;

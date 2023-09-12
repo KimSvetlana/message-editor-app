@@ -17,11 +17,6 @@ interface ISplitHandler {
 
 let counter = 0;
 
-const substituteVariables = (
-  text: string,
-  variables: Map<string, string>
-) => {};
-
 export class SimpleTextTemplate implements ITextTemplate {
   _id: number;
   _simpleText: string;
@@ -47,7 +42,6 @@ export class SimpleTextTemplate implements ITextTemplate {
       return;
     }
 
-    // console.log(`split(${pos}) text=${this._simpleText}`)
     if (pos > this._simpleText.length) {
       throw new Error("splitting pos is out of range");
     }
@@ -142,8 +136,6 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
     if (this._childrenChangedListener) {
       this._childrenChangedListener([...this._children]);
     }
-
-    console.log(`delete inside compound block, children: ${this._children}`);
   }
 }
 
@@ -153,7 +145,7 @@ export class ConditionBlockTemplate implements ITextTemplate {
     null
   );
   thenBlock: CompoundTextTemplate = new CompoundTextTemplate(
-    "put then else text here"
+    "put then text here"
   );
   elseBlock: CompoundTextTemplate = new CompoundTextTemplate(
     "put else text here"
