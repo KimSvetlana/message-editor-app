@@ -13,13 +13,17 @@ function PreviewPage(props: any) {
   const [displayText, setDisplayText] = useState(
     props.template.generateText(variablesInitial)
   );
+  
+  const inputHandler = (varName: string) => {
+    const inputChange = (event: any) => {
+      // let varName = event.target.id;
+      let value = event.target.value;
+      variableValues.set(varName, value);
+      setDisplayText(props.template.generateText(variableValues));
+    };
 
-  const inputChange = (event: any) => {
-    let varName = event.target.id;
-    let value = event.target.value;
-    variableValues.set(varName, value);
-    setDisplayText(props.template.generateText(variableValues));
-  };
+    return inputChange;
+  }
 
   return (
     <div className="preview-page">
@@ -40,15 +44,14 @@ function PreviewPage(props: any) {
           <div className="variables-group">
             {variablesNames?.map((varName: string) => (
               <div className="group" key={`div_${varName}`}>
-                <label key={`label_${varName}`} htmlFor={varName}>
+                <label key={`label_${varName}`} htmlFor={`input_${varName}`}>
                   {`${varName}: `}
                 </label>
                 <input
                   key={varName}
-                  id={varName}
+                  id={`input_${varName}`}
                   className="input"
-                  onChange={inputChange}
-                  // placeholder={varName}
+                  onChange={inputHandler(varName)}
                 ></input>
               </div>
             ))}

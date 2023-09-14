@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import "./messageEditor.css";
 import Modal from "react-modal";
-import ConditionBlock from "./conditionBlock";
 import PreviewPage from "./previewPage";
 import {
   AddConditionContext,
-  AddConditionEventSource,
   CompoundTextTemplate,
   AddVariableContext,
 } from "./model";
 import { CompoundText } from "./compoundText";
+
+Modal.setAppElement("#root");
 
 function MessageEditor() {
   let variablesName = localStorage.arrVarNames
@@ -36,12 +36,16 @@ function MessageEditor() {
     setPreviewIsOpen(false);
   };
 
-  const varButtonClick = (event: any) => {
-    addVariableContext.variable = event.target.id;
-    const callback = addVariableContext.callback();
-    if (callback) {
-      callback();
-    }
+  const createButtonClickHandler = (varName: string) => {
+    const clickHandler = () => {
+      addVariableContext.variable = varName;
+      const callback = addVariableContext.callback();
+      if (callback) {
+        callback();
+      }
+    };
+
+    return clickHandler;
   };
 
   const addIfElseBlock = (event: any) => {
@@ -60,9 +64,8 @@ function MessageEditor() {
           {variablesName?.map((varName: string) => (
             <button
               key={varName}
-              id={varName}
               className="button"
-              onClick={varButtonClick}
+              onClick={createButtonClickHandler(varName)}
             >
               {`{${varName}}`}
             </button>
@@ -95,7 +98,7 @@ function MessageEditor() {
         </div>
       </div>
 
-      <Modal isOpen={previewIsOpen} onRequestClose={closePreview}>
+      <Modal isOpen={previewIsOpen}>
         {<PreviewPage previewClose={closePreview} template={templateRoot} />}
       </Modal>
     </div>
