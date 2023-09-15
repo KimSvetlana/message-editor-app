@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./conditionBlock.css";
-import { ConditionBlockTemplate } from "./model";
-import { SimpleText } from "./simpleText";
-import { CompoundText } from "./compoundText";
+import { ConditionBlockTemplate } from "../../model";
+import { SimpleText } from "../simpleText/simpleText";
+import { CompoundText } from "../compoundText/compoundText";
 
 function ConditionBlock(props: any) {
   const [templateObject, setTemplateObject] = useState(

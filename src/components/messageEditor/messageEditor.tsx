@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import "./messageEditor.css";
 import Modal from "react-modal";
-import PreviewPage from "./previewPage";
+import PreviewPage from "../previewPage/previewPage";
 import {
   AddConditionContext,
   CompoundTextTemplate,
   AddVariableContext,
-} from "./model";
-import { CompoundText } from "./compoundText";
+} from "../../model";
+import { CompoundText } from "../compoundText/compoundText";
 
 Modal.setAppElement("#root");
 
@@ -30,6 +30,8 @@ function MessageEditor() {
 
   const saveTemplate = (event: any) => {
     localStorage.setItem("variables", JSON.stringify(variablesName));
+    // localStorage.setItem("template", JSON.stringify(templateRoot));
+    console.log('template', templateRoot);
   };
 
   const closePreview = () => {

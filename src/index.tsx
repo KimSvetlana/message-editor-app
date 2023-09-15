@@ -4,8 +4,8 @@ import './index.css';
 import reportWebVitals from './reportWebVitals';
 import {  BrowserRouter as Router,  Route,  Routes } from 'react-router-dom';
 
-import StartPage from './startPage';
-import MessageEditor from './messageEditor';
+import StartPage from './components/startPage/startPage';
+import MessageEditor from './components/messageEditor/messageEditor';
 
 
 const root = ReactDOM.createRoot(

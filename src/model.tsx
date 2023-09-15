@@ -1,8 +1,7 @@
-import React, { useState, createContext } from "react";
-import { SimpleText } from "./simpleText";
-import { CompoundText } from "./compoundText";
-import "./conditionBlock";
-import ConditionBlock from "./conditionBlock";
+import React, { useState } from "react";
+import { SimpleText } from "./components/simpleText/simpleText";
+import { CompoundText } from "./components/compoundText/compoundText";
+import ConditionBlock from "./components/conditionBlock/conditionBlock";
 
 export interface ITextTemplate {
   generateText(variables: Map<string, string>): string;
@@ -96,7 +95,7 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
     const childIndex = this._children.findIndex((element) => {
       return element === source;
     });
-    if (childIndex == -1) {
+    if (childIndex === -1) {
       console.log(
         `ignore split from child that is no longer in children, id: ${source.id}`
       );

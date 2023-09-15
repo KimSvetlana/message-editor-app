@@ -6,7 +6,7 @@ import {
   AddConditionEventSource,
   AddVariableEventSource,
   AddVariableContext,
-} from "./model";
+} from "../../model";
 import TextareaAutosize from "react-textarea-autosize";
 
 export function SimpleText(props: any) {
