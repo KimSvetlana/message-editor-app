@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./messageEditor.css";
+import "./conditionBlock.css";
 import { ConditionBlockTemplate } from "./model";
 import { SimpleText } from "./simpleText";
 import { CompoundText } from "./compoundText";
@@ -31,13 +31,19 @@ function ConditionBlock(props: any) {
         <label htmlFor="then-input" className="label-input">
           then
         </label>
-        <CompoundText templateObject={templateObject.thenBlock}></CompoundText>
+        <CompoundText
+          templateObject={templateObject.thenBlock}
+          identityClass="then-else-wrapper"
+        ></CompoundText>
       </div>
       <div className="condition-group">
         <label htmlFor="else-input" className="label-input">
           else
         </label>
-        <CompoundText templateObject={templateObject.elseBlock}></CompoundText>
+        <CompoundText
+          templateObject={templateObject.elseBlock}
+          identityClass="then-else-wrapper"
+        ></CompoundText>
       </div>
     </div>
   );

@@ -13,17 +13,16 @@ function PreviewPage(props: any) {
   const [displayText, setDisplayText] = useState(
     props.template.generateText(variablesInitial)
   );
-  
+
   const inputHandler = (varName: string) => {
     const inputChange = (event: any) => {
-      // let varName = event.target.id;
       let value = event.target.value;
       variableValues.set(varName, value);
       setDisplayText(props.template.generateText(variableValues));
     };
 
     return inputChange;
-  }
+  };
 
   return (
     <div className="preview-page">

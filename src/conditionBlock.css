@@ -1,0 +1,41 @@
+.condition-block {
+    width: 600px;
+    margin-top: 10px;
+
+    .condition-group {
+        display: flex;
+        justify-content: space-between;
+        margin: 10px;
+
+        .delete-button {
+            padding: 5px;
+            height: 30px;
+            border-radius: 5px;
+            border: 1px solid #61dafb;
+            color: #282c34;
+            cursor: pointer;
+        }
+
+        .label-input {
+            display: block;
+            box-sizing: border-box;
+            height: 30px;
+            padding: 3px;
+            border-radius: 5px;
+            border: 1px solid #61dafb;
+            margin: 5px;
+            color: #61dafb;
+        }
+
+        .then-else-wrapper {
+            width: 400px;
+        }
+
+        .condition-text-if {
+            width: 400px;
+            padding: 10px 10px;
+            border: 3px solid #61dafb;
+            border-radius: 20px;
+        }
+    }
+}

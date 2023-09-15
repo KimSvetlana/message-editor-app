@@ -84,7 +84,7 @@ function MessageEditor() {
 
         <CompoundText
           templateObject={templateRoot}
-          identityClass="template-input"
+          identityClass="text-input-wrapper"
         ></CompoundText>
 
         <div className="savePanel">

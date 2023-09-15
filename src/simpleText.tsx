@@ -7,6 +7,7 @@ import {
   AddVariableEventSource,
   AddVariableContext,
 } from "./model";
+import TextareaAutosize from "react-textarea-autosize";
 
 export function SimpleText(props: any) {
   const [simpleText, setSimpleText] = useState(
@@ -22,6 +23,8 @@ export function SimpleText(props: any) {
   const simpleTextClass = props.identityClass
     ? props.identityClass
     : "simple-text ";
+
+  const numberOfRows = props.identityClass ? 1 : 5;
 
   const onTextChange = (event: any) => {
     simpleText.simpleText = event.target.value;
@@ -45,11 +48,12 @@ export function SimpleText(props: any) {
   };
 
   return (
-    <textarea
+    <TextareaAutosize
+      minRows={numberOfRows}
       className={simpleTextClass}
       onChange={onTextChange}
       onSelect={onTextChange}
       value={displayText}
-    ></textarea>
+    />
   );
 }
