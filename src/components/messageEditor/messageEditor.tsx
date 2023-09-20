@@ -4,34 +4,37 @@ import Modal from "react-modal";
 import PreviewPage from "../previewPage/previewPage";
 import {
   AddConditionContext,
-  CompoundTextTemplate,
+  CompoundTextElement,
   AddVariableContext,
 } from "../../model";
 import { CompoundText } from "../compoundText/compoundText";
+import { Link } from "react-router-dom";
 
 Modal.setAppElement("#root");
 
-function MessageEditor() {
-  let variablesName = localStorage.arrVarNames
-    ? JSON.parse(localStorage.arrVarNames)
-    : ["firstname", "lastname", "company", "position"];
+export interface IMessageEditorProps {
+  variableNames: Array<string>;
+  template: CompoundTextElement;
+  saveFunction: (variables: Array<string>, template: CompoundTextElement) => void;
+}
 
+function MessageEditor(props: IMessageEditorProps) {
+  let variableNames = props.variableNames;
+  let templateInitial = props.template;
+  
   const addVariableContext = React.useContext(AddVariableContext);
   const addConditionEventSource = React.useContext(AddConditionContext);
 
-  const [templateRoot, setTemplateRoot] = useState(
-    new CompoundTextTemplate("initial text")
-  );
+  const [templateRoot, setTemplateRoot] = useState(templateInitial);
+
   const [previewIsOpen, setPreviewIsOpen] = useState(false);
 
   const openPreview = () => {
     setPreviewIsOpen(true);
   };
 
-  const saveTemplate = (event: any) => {
-    localStorage.setItem("variables", JSON.stringify(variablesName));
-    // localStorage.setItem("template", JSON.stringify(templateRoot));
-    console.log('template', templateRoot);
+  const saveTemplate = async (event: any) => {
+    await props.saveFunction(variableNames, templateRoot);
   };
 
   const closePreview = () => {
@@ -40,10 +43,9 @@ function MessageEditor() {
 
   const createButtonClickHandler = (varName: string) => {
     const clickHandler = () => {
-      addVariableContext.variable = varName;
-      const callback = addVariableContext.callback();
+      const callback = addVariableContext.callback;
       if (callback) {
-        callback();
+        callback(varName);
       }
     };
 
@@ -63,7 +65,7 @@ function MessageEditor() {
         <h3>Massage Template Editor</h3>
 
         <div className="button-group">
-          {variablesName?.map((varName: string) => (
+          {variableNames?.map((varName: string) => (
             <button
               key={varName}
               className="button"
@@ -89,19 +91,21 @@ function MessageEditor() {
           identityClass="text-input-wrapper"
         ></CompoundText>
 
-        <div className="savePanel">
+        <div className="save-panel">
           <button className="button" onClick={openPreview}>
             Preview
           </button>
           <button className="button" onClick={saveTemplate}>
             Save
           </button>
-          <button className="button">Close</button>
+          <Link to="/" className="button-link">
+            Close
+          </Link>
         </div>
       </div>
 
       <Modal isOpen={previewIsOpen}>
-        {<PreviewPage previewClose={closePreview} template={templateRoot} />}
+        {<PreviewPage previewClose={closePreview} template={templateRoot} variables={variableNames} />}
       </Modal>
     </div>
   );

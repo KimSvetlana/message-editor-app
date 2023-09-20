@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./conditionBlock.css";
-import { ConditionBlockTemplate } from "../../model";
+import { ConditionBlockElement } from "../../model";
 import { SimpleText } from "../simpleText/simpleText";
 import { CompoundText } from "../compoundText/compoundText";
 
-function ConditionBlock(props: any) {
+export interface IConditionBlockProps {
+  templateObject: ConditionBlockElement;
+}
+
+function ConditionBlock(props: IConditionBlockProps) {
   const [templateObject, setTemplateObject] = useState(
-    props.templateObject as ConditionBlockTemplate
+    props.templateObject as ConditionBlockElement
   );
 
   const onClickDelete = () => {

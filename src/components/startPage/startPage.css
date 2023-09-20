@@ -26,32 +26,4 @@
     line-height: 13px;
   }
 
-  .disabled-button {
-    pointer-events: none;
-    color: hsl(200, 1%, 49%);
-    margin-top: 10px;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 3px solid hsl(200, 1%, 49%);
-    cursor: pointer;
-    text-decoration: none;
-    line-height: 13px;
-  }
-
-  .variables-input {
-    margin-top: 10px;
-    width: 500px;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 3px solid #61dafb;
-  }
-
-  .template-input{
-    margin-top: 10px;
-    width: 600px;
-    height: 300px;
-    padding: 10px 10px;
-    border: 3px solid #61dafb;
-    border-radius: 20px;
-  }
 }

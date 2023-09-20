@@ -1,7 +1,7 @@
 import {
-  SimpleTextTemplate,
-  CompoundTextTemplate,
-  ConditionBlockTemplate,
+  SimpleTextElement,
+  CompoundTextElement,
+  ConditionBlockElement,
 } from "./model";
 
 let mockSplitHandler = {
@@ -9,7 +9,7 @@ let mockSplitHandler = {
     onDelete: () => {},
 };
 
-//Данный  Map будет использоваться в следующих 2х тестах
+
 const variablesMap = new Map();
 variablesMap.set("firstname", "Svetlana");
 variablesMap.set("lastname", "Kim");
@@ -17,13 +17,13 @@ variablesMap.set("company", "Aurigma");
 variablesMap.set("position", "front");
 
 test("generate text from simple block without variables", () => {
-  const simpleText = new SimpleTextTemplate("my first test", mockSplitHandler);
+  const simpleText = new SimpleTextElement("my first test", mockSplitHandler);
   const generatedText = simpleText.generateText(variablesMap);
   expect(generatedText).toEqual("my first test");
 });
 
 test("generate text from simple block with variables", () => {
-  const simpleTextWithVariable = new SimpleTextTemplate(
+  const simpleTextWithVariable = new SimpleTextElement(
     "My name is {firstname} {lastname}",
     mockSplitHandler
   );
@@ -32,29 +32,29 @@ test("generate text from simple block with variables", () => {
 });
 
 test("generate text with one if block", () => {
-  //Для тестирования тимплейта с одним уровнем вложенности создадим textWithIfBlock
-  let textWithIfBlock = new CompoundTextTemplate("");
+  //Для тестирования шаблона с одним уровнем вложенности создадим textWithIfBlock
+  let textWithIfBlock = new CompoundTextElement("");
 
   //отдельно необходим if-else блок
-  let conditionBlock = new ConditionBlockTemplate(mockSplitHandler);
-  conditionBlock.ifBlock = new SimpleTextTemplate("{company}", mockSplitHandler);
-  let thenBlock = new CompoundTextTemplate("");
+  let conditionBlock = new ConditionBlockElement(mockSplitHandler);
+  conditionBlock.ifBlock = new SimpleTextElement("{company}", mockSplitHandler);
+  let thenBlock = new CompoundTextElement("");
   thenBlock._children = [
-    new SimpleTextTemplate("Your company is {company}, right?", mockSplitHandler),
+    new SimpleTextElement("Your company is {company}, right?", mockSplitHandler),
   ];
   conditionBlock.thenBlock = thenBlock;
 
-  let elseBlock = new CompoundTextTemplate("");
-  elseBlock._children = [new SimpleTextTemplate("Where do you work?", mockSplitHandler)];
+  let elseBlock = new CompoundTextElement("");
+  elseBlock._children = [new SimpleTextElement("Where do you work?", mockSplitHandler)];
   conditionBlock.elseBlock = elseBlock;
 
-  // Добавляем в тимплейт textWithIfBlock его составляющие
+  // Добавляем в шаблон textWithIfBlock его составляющие
   textWithIfBlock._children = [
-    new SimpleTextTemplate("Hi {firstname}!", mockSplitHandler),
+    new SimpleTextElement("Hi {firstname}!", mockSplitHandler),
     conditionBlock,
-    new SimpleTextTemplate("Bye!", mockSplitHandler),
+    new SimpleTextElement("Bye!", mockSplitHandler),
   ];
-  //создадим новый Map  переменных
+  
   const newMap = new Map();
   // т.к тимплейт с условием  if {company}, эту переменную оставим пустой для тестирования ветки ELSE
   newMap.set("firstname", "Svetlana");
@@ -70,11 +70,11 @@ Bye!
   expect(generatedTextWithElse).toEqual(expectedText);
 
 
-  // т.к тимплейт с условием  if {company}, зададим эту переменную для тестирования ветки THEN
-  newMap.set("company", "Аurigma");
+  // зададим переменную {company} для тестирования ветки THEN
+  newMap.set("company", "Aurigma");
   const generatedTextWithThen = textWithIfBlock.generateText(newMap);
   expectedText = `Hi Svetlana!
-Your company is Аurigma, right?
+Your company is Aurigma, right?
 
 Bye!
 `;
@@ -83,52 +83,52 @@ Bye!
 
 
 test("generate text with two if block", () => {
-    //Для тестирования тимплейта с двумя уровнями вложенности создадим textTemplate
+    //Для тестирования шаблона с двумя уровнями вложенности создадим textTemplate
 
-    let textTemplate = new CompoundTextTemplate("");
+    let textTemplate = new CompoundTextElement("");
 
     //создадим if-else блок первого уровня
-    let conditionBlock = new ConditionBlockTemplate(mockSplitHandler);
-    conditionBlock.ifBlock = new SimpleTextTemplate("{company}", null);
-    let thenBlock = new CompoundTextTemplate("");
+    let conditionBlock = new ConditionBlockElement(mockSplitHandler);
+    conditionBlock.ifBlock = new SimpleTextElement("{company}", null);
+    let thenBlock = new CompoundTextElement("");
 
     // создадим if-else блок второго уровня уровня
-    let innerConditionBlock = new ConditionBlockTemplate(mockSplitHandler);
-    innerConditionBlock.ifBlock = new SimpleTextTemplate("{position}", null);
-    let innerThenBlock = new CompoundTextTemplate("");
+    let innerConditionBlock = new ConditionBlockElement(mockSplitHandler);
+    innerConditionBlock.ifBlock = new SimpleTextElement("{position}", null);
+    let innerThenBlock = new CompoundTextElement("");
     innerThenBlock._children = [
-        new SimpleTextTemplate("Your position is {position}?", null),
+        new SimpleTextElement("Your position is {position}?", null),
     ];
     innerConditionBlock.thenBlock = innerThenBlock;
 
-    let innerElseBlock = new CompoundTextTemplate("");
-    innerElseBlock._children = [new SimpleTextTemplate( 
+    let innerElseBlock = new CompoundTextElement("");
+    innerElseBlock._children = [new SimpleTextElement( 
         "What is your position?", null)];
     innerConditionBlock.elseBlock = innerElseBlock;
 
     //добавим все childs  к thenBlock
     thenBlock._children = [
-      new SimpleTextTemplate("Your company is {company}, right?", null),
+      new SimpleTextElement("Your company is {company}, right?", null),
       innerConditionBlock,
-      new SimpleTextTemplate("", null),
+      new SimpleTextElement("", null),
     ];
     conditionBlock.thenBlock = thenBlock;
   
-    let elseBlock = new CompoundTextTemplate("");
-    elseBlock._children = [new SimpleTextTemplate("Where do you work?", null)];
+    let elseBlock = new CompoundTextElement("");
+    elseBlock._children = [new SimpleTextElement("Where do you work?", null)];
     conditionBlock.elseBlock = elseBlock;
   
-    // Добавляем в тимплейт textWithIfBlock его составляющие
+    // Добавляем в шаблон textWithIfBlock его составляющие
     textTemplate._children = [
-      new SimpleTextTemplate("Hi {firstname}!", null),
+      new SimpleTextElement("Hi {firstname}!", null),
       conditionBlock,
-      new SimpleTextTemplate("Bye!", null),
+      new SimpleTextElement("Bye!", null),
     ];
 
-    //создадим новый Map  переменных
+    
     const newMap = new Map();
   
-    // textTemplate два уровня вложенности. If-else блок первого уровня имеет переменнyю  {company},
+    // textTemplate имеет два уровня вложенности. If-else блок первого уровня имеет переменнyю  {company},
     // If-else блок в торого уровня имеет переменнyю {position},  
     // оставим  переменные {company} и  {position} без заданных значенй 
     newMap.set("firstname", "Svetlana");
@@ -143,7 +143,6 @@ Where do you work?
 Bye!
 `;
   expect(newGeneratedText).toEqual(newExpectedText);
-
  
     // т.к if-else блок первого уровня имеет вложенность с условием if{position}, то зададим переменнyю  {company} 
     // оставив переменную  {position} для тестирования ветки  ELSE второго уровня вложенности

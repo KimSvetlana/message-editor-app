@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./previewPage.css";
+import { CompoundTextElement } from "../../model";
 
-function PreviewPage(props: any) {
-  let variablesNames: string[] = JSON.parse(
-    localStorage.getItem("variables") || "{}"
-  );
+export interface IPreviewPageProps {
+  variables: Array<string>;
+  template: CompoundTextElement;
+  previewClose: () => void;
+}
+
+function PreviewPage(props: IPreviewPageProps) {
+  let variableNames = props.variables;
 
   let variablesInitial = new Map<string, string>(
-    variablesNames.map((varName) => [varName, ""])
+    variableNames.map((varName: string) => [varName, ""])
   );
   const [variableValues, setVariableValues] = useState(variablesInitial);
   const [displayText, setDisplayText] = useState(
@@ -41,7 +46,7 @@ function PreviewPage(props: any) {
         <div className="preview-variables">
           <h3>Variables: </h3>
           <div className="variables-group">
-            {variablesNames?.map((varName: string) => (
+            {variableNames?.map((varName: string) => (
               <div className="group" key={`div_${varName}`}>
                 <label key={`label_${varName}`} htmlFor={`input_${varName}`}>
                   {`${varName}: `}

@@ -1,22 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { SimpleText } from "./components/simpleText/simpleText";
 import { CompoundText } from "./components/compoundText/compoundText";
 import ConditionBlock from "./components/conditionBlock/conditionBlock";
+import { parse as deserialize, stringify as serialize } from 'flatted';
 
-export interface ITextTemplate {
+type ComponentFunc = (props: any) => JSX.Element;
+
+export interface ITemplateElement {
   generateText(variables: Map<string, string>): string;
-  render(): any;
+  // TODO: модель и компоненты здесь связаны
+  correspondingComponent(): ComponentFunc;
   get id(): number;
 }
 
 interface ISplitHandler {
-  onSplit(source: ITextTemplate, leftPart: string, rightPart: string): void;
-  onDelete(source: ITextTemplate): void;
+  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void;
+  onDelete(source: ITemplateElement): void;
 }
 
 let counter = 0;
 
-export class SimpleTextTemplate implements ITextTemplate {
+export class SimpleTextElement implements ITemplateElement {
+  readonly itemType: string = 'SimpleTextElement';
+
   _id: number;
   _simpleText: string;
   _splitHandler: ISplitHandler | null;
@@ -31,7 +37,7 @@ export class SimpleTextTemplate implements ITextTemplate {
     return this._id;
   }
 
-  render(): any {
+  correspondingComponent(): ComponentFunc {
     return SimpleText;
   }
 
@@ -69,12 +75,15 @@ export class SimpleTextTemplate implements ITextTemplate {
   }
 }
 
-export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
-  _children: Array<ITextTemplate>;
-  _childrenChangedListener: any;
+export class CompoundTextElement implements ITemplateElement, ISplitHandler {
+  readonly itemType: string = 'CompoundTextElement';
+
+  _children: Array<ITemplateElement>;
+  _childrenChangedListener: ((children: Array<ITemplateElement>) => void) | null;
   _id: number;
+
   constructor(text: string) {
-    this._children = [new SimpleTextTemplate(text, this)];
+    this._children = [new SimpleTextElement(text, this)];
     this._childrenChangedListener = null;
     this._id = counter;
     counter += 1;
@@ -87,11 +96,11 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
     this._childrenChangedListener = value;
   }
 
-  get children(): Array<ITextTemplate> {
+  get children(): Array<ITemplateElement> {
     return this._children;
   }
 
-  onSplit(source: ITextTemplate, leftPart: string, rightPart: string): void {
+  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void {
     const childIndex = this._children.findIndex((element) => {
       return element === source;
     });
@@ -102,10 +111,10 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
       return;
     }
 
-    let newItems: Array<ITextTemplate> = [
-      new SimpleTextTemplate(leftPart, this),
-      new ConditionBlockTemplate(this),
-      new SimpleTextTemplate(rightPart, this),
+    let newItems: Array<ITemplateElement> = [
+      new SimpleTextElement(leftPart, this),
+      new ConditionBlockElement(this),
+      new SimpleTextElement(rightPart, this),
     ];
     this._children.splice(childIndex, 1, ...newItems);
 
@@ -113,7 +122,7 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
       this._childrenChangedListener([...this._children]);
     }
   }
-  render() {
+  correspondingComponent() : ComponentFunc {
     return CompoundText;
   }
   generateText(variables: Map<string, string>): string {
@@ -125,11 +134,11 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
     return res;
   }
 
-  onDelete(source: ITextTemplate) {
+  onDelete(source: ITemplateElement) {
     this._children = this.children.filter((child) => child.id !== source.id);
 
     let newText = this.generateText(new Map());
-    let newItem = new SimpleTextTemplate(newText, this);
+    let newItem = new SimpleTextElement(newText, this);
     this._children.splice(0, this._children.length, newItem);
 
     if (this._childrenChangedListener) {
@@ -138,23 +147,25 @@ export class CompoundTextTemplate implements ITextTemplate, ISplitHandler {
   }
 }
 
-export class ConditionBlockTemplate implements ITextTemplate {
-  ifBlock: SimpleTextTemplate = new SimpleTextTemplate(
-    "put condition here",
+export class ConditionBlockElement implements ITemplateElement {
+  readonly itemType: string = 'ConditionBlockElement';
+
+  ifBlock: SimpleTextElement = new SimpleTextElement(
+    "<put condition here>",
     null
   );
-  thenBlock: CompoundTextTemplate = new CompoundTextTemplate(
-    "put then text here"
+  thenBlock: CompoundTextElement = new CompoundTextElement(
+    "<put then text here>"
   );
-  elseBlock: CompoundTextTemplate = new CompoundTextTemplate(
-    "put else text here"
+  elseBlock: CompoundTextElement = new CompoundTextElement(
+    "<put else text here>"
   );
 
   _id: number;
   _delete: any;
-  _splitHandler: ISplitHandler;
+  _splitHandler: ISplitHandler | null;
 
-  constructor(splitHandler: ISplitHandler) {
+  constructor(splitHandler: ISplitHandler | null) {
     this._splitHandler = splitHandler;
     this._id = counter;
     counter += 1;
@@ -173,15 +184,16 @@ export class ConditionBlockTemplate implements ITextTemplate {
     }
   }
 
-  render(): any {
+  correspondingComponent(): ComponentFunc {
     return ConditionBlock;
   }
 
   delete() {
-    this._splitHandler.onDelete(this);
+    this._splitHandler?.onDelete(this);
   }
 }
 
+// Источник событий добавления условного блока
 export class AddConditionEventSource {
   _callback: any;
 
@@ -194,24 +206,18 @@ export class AddConditionEventSource {
   }
 }
 
+// Источник событий добавления переменной
 export class AddVariableEventSource {
-  private _callback: any;
+  private _callback: ((variableName: string) => void) | null = null;
   private _variable: string;
   constructor(variable: string) {
     this._variable = variable;
   }
-  get callback(): any {
+  get callback(): ((variableName: string) => void) | null {
     return this._callback;
   }
-  set callback(value: any) {
+  set callback(value:((variableName: string) => void) | null) {
     this._callback = value;
-  }
-
-  get variable(): any {
-    return this._variable;
-  }
-  set variable(value: any) {
-    this._variable = value;
   }
 }
 
@@ -222,3 +228,31 @@ export const AddConditionContext = React.createContext(
 export const AddVariableContext = React.createContext(
   new AddVariableEventSource("")
 );
+
+export function deserializeTemplate(data: string) : CompoundTextElement
+{
+  let reviver = (key: any, value: any) => {
+    if (value && typeof(value) == "object" && value.itemType) {
+      switch (value.itemType) {
+        case "ConditionBlockElement":
+          return Object.assign(new ConditionBlockElement(null), value);
+        case "SimpleTextElement":
+          return Object.assign(new SimpleTextElement("", null), value);
+        case "CompoundTextElement":
+          return Object.assign(new CompoundTextElement(""), value);
+        default:
+          throw new Error(`unknown itemType: ${value.itemType}`);
+      }
+    }
+
+    return value;
+  }
+
+  let parsedTemplate = deserialize(data, reviver);
+  return Object.assign(parsedTemplate, CompoundTextElement);
+}
+
+export function serializeTemplate(template: CompoundTextElement) : string
+{
+  return serialize(template);
+}

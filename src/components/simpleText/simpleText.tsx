@@ -1,7 +1,7 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import "./simpleText.css";
 import {
-  SimpleTextTemplate,
+  SimpleTextElement,
   AddConditionContext,
   AddConditionEventSource,
   AddVariableEventSource,
@@ -9,9 +9,14 @@ import {
 } from "../../model";
 import TextareaAutosize from "react-textarea-autosize";
 
-export function SimpleText(props: any) {
+export interface ISimpleTextProps {
+  templateObject:  SimpleTextElement;
+  identityClass?: string;
+}
+
+export function SimpleText(props: ISimpleTextProps) {
   const [simpleText, setSimpleText] = useState(
-    props.templateObject as SimpleTextTemplate
+    props.templateObject as SimpleTextElement
   );
   let [displayText, setDisplayText] = useState(simpleText.simpleText);
 
@@ -35,11 +40,11 @@ export function SimpleText(props: any) {
     };
     setDisplayText(event.target.value);
 
-    addVariableEventSource.callback = () => {
-      let variableName = `{${addVariableEventSource.variable}}`;
+    addVariableEventSource.callback = (variable: string) => {
+      let variableNameInsertion = `{${variable}}`;
       let newText =
         displayText.slice(0, cursorPos) +
-        variableName +
+        variableNameInsertion +
         displayText.slice(cursorPos);
       simpleText.simpleText = newText;
       displayText = newText;
