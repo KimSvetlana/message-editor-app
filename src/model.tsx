@@ -166,11 +166,21 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
   }
 
   onDelete(source: ITemplateElement) {
-    this._children = this.children.filter((child) => child.id !== source.id);
+    let childIndex = this._children.findIndex((element) => {
+      return element === source;
+    });
+    
+    // Проверка, что найден и что есть элементы до него и после него
+    if (childIndex === -1 || childIndex === 0 || childIndex === this._children.length - 1) {
+      throw new Error(`Can't remove element with index: ${childIndex}`);
+    }
 
-    let newText = this.generateText(new Map());
-    let newItem = new SimpleTextElement(newText, this);
-    this._children.splice(0, this._children.length, newItem);
+    let beforeItem = this._children[childIndex -1];
+    let afterItem = this._children[childIndex + 1];
+    let emptyMap = new Map<string, string>();
+    let newItem = new SimpleTextElement(beforeItem.generateText(emptyMap) + afterItem.generateText(emptyMap), this);
+
+    this._children.splice(childIndex - 1, 3, newItem);
 
     if (this._childrenChangedListener) {
       this._childrenChangedListener([...this._children]);
