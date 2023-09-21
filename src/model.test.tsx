@@ -2,13 +2,14 @@ import {
   SimpleTextElement,
   CompoundTextElement,
   ConditionBlockElement,
+  serializeTemplate,
+  deserializeTemplate,
 } from "./model";
 
 let mockSplitHandler = {
-    onSplit: () => {},
-    onDelete: () => {},
+  onSplit: () => {},
+  onDelete: () => {},
 };
-
 
 const variablesMap = new Map();
 variablesMap.set("firstname", "Svetlana");
@@ -40,12 +41,17 @@ test("generate text with one if block", () => {
   conditionBlock.ifBlock = new SimpleTextElement("{company}", mockSplitHandler);
   let thenBlock = new CompoundTextElement("");
   thenBlock._children = [
-    new SimpleTextElement("Your company is {company}, right?", mockSplitHandler),
+    new SimpleTextElement(
+      "Your company is {company}, right?",
+      mockSplitHandler
+    ),
   ];
   conditionBlock.thenBlock = thenBlock;
 
   let elseBlock = new CompoundTextElement("");
-  elseBlock._children = [new SimpleTextElement("Where do you work?", mockSplitHandler)];
+  elseBlock._children = [
+    new SimpleTextElement("Where do you work?", mockSplitHandler),
+  ];
   conditionBlock.elseBlock = elseBlock;
 
   // Добавляем в шаблон textWithIfBlock его составляющие
@@ -54,7 +60,7 @@ test("generate text with one if block", () => {
     conditionBlock,
     new SimpleTextElement("Bye!", mockSplitHandler),
   ];
-  
+
   const newMap = new Map();
   // т.к тимплейт с условием  if {company}, эту переменную оставим пустой для тестирования ветки ELSE
   newMap.set("firstname", "Svetlana");
@@ -62,120 +68,103 @@ test("generate text with one if block", () => {
   newMap.set("company", "");
 
   const generatedTextWithElse = textWithIfBlock.generateText(newMap);
-  let expectedText = `Hi Svetlana!
-Where do you work?
-
-Bye!
-`;
+  let expectedText = `Hi Svetlana!Where do you work?Bye!`;
   expect(generatedTextWithElse).toEqual(expectedText);
-
 
   // зададим переменную {company} для тестирования ветки THEN
   newMap.set("company", "Aurigma");
   const generatedTextWithThen = textWithIfBlock.generateText(newMap);
-  expectedText = `Hi Svetlana!
-Your company is Aurigma, right?
-
-Bye!
-`;
-  expect(generatedTextWithThen).toEqual(expectedText);  
+  expectedText = `Hi Svetlana!Your company is Aurigma, right?Bye!`;
+  expect(generatedTextWithThen).toEqual(expectedText);
 });
 
-
 test("generate text with two if block", () => {
-    //Для тестирования шаблона с двумя уровнями вложенности создадим textTemplate
+  //Для тестирования шаблона с двумя уровнями вложенности создадим textTemplate
 
-    let textTemplate = new CompoundTextElement("");
+  let textTemplate = new CompoundTextElement("");
 
-    //создадим if-else блок первого уровня
-    let conditionBlock = new ConditionBlockElement(mockSplitHandler);
-    conditionBlock.ifBlock = new SimpleTextElement("{company}", null);
-    let thenBlock = new CompoundTextElement("");
+  //создадим if-else блок первого уровня
+  let conditionBlock = new ConditionBlockElement(mockSplitHandler);
+  conditionBlock.ifBlock = new SimpleTextElement("{company}", null);
+  let thenBlock = new CompoundTextElement("");
 
-    // создадим if-else блок второго уровня уровня
-    let innerConditionBlock = new ConditionBlockElement(mockSplitHandler);
-    innerConditionBlock.ifBlock = new SimpleTextElement("{position}", null);
-    let innerThenBlock = new CompoundTextElement("");
-    innerThenBlock._children = [
-        new SimpleTextElement("Your position is {position}?", null),
-    ];
-    innerConditionBlock.thenBlock = innerThenBlock;
+  // создадим if-else блок второго уровня уровня
+  let innerConditionBlock = new ConditionBlockElement(mockSplitHandler);
+  innerConditionBlock.ifBlock = new SimpleTextElement("{position}", null);
+  let innerThenBlock = new CompoundTextElement("");
+  innerThenBlock._children = [
+    new SimpleTextElement("Your position is {position}?", null),
+  ];
+  innerConditionBlock.thenBlock = innerThenBlock;
 
-    let innerElseBlock = new CompoundTextElement("");
-    innerElseBlock._children = [new SimpleTextElement( 
-        "What is your position?", null)];
-    innerConditionBlock.elseBlock = innerElseBlock;
+  let innerElseBlock = new CompoundTextElement("");
+  innerElseBlock._children = [
+    new SimpleTextElement("What is your position?", null),
+  ];
+  innerConditionBlock.elseBlock = innerElseBlock;
 
-    //добавим все childs  к thenBlock
-    thenBlock._children = [
-      new SimpleTextElement("Your company is {company}, right?", null),
-      innerConditionBlock,
-      new SimpleTextElement("", null),
-    ];
-    conditionBlock.thenBlock = thenBlock;
-  
-    let elseBlock = new CompoundTextElement("");
-    elseBlock._children = [new SimpleTextElement("Where do you work?", null)];
-    conditionBlock.elseBlock = elseBlock;
-  
-    // Добавляем в шаблон textWithIfBlock его составляющие
-    textTemplate._children = [
-      new SimpleTextElement("Hi {firstname}!", null),
-      conditionBlock,
-      new SimpleTextElement("Bye!", null),
-    ];
+  //добавим все childs  к thenBlock
+  thenBlock._children = [
+    new SimpleTextElement("Your company is {company}, right?", null),
+    innerConditionBlock,
+    new SimpleTextElement("", null),
+  ];
+  conditionBlock.thenBlock = thenBlock;
 
-    
-    const newMap = new Map();
-  
-    // textTemplate имеет два уровня вложенности. If-else блок первого уровня имеет переменнyю  {company},
-    // If-else блок в торого уровня имеет переменнyю {position},  
-    // оставим  переменные {company} и  {position} без заданных значенй 
-    newMap.set("firstname", "Svetlana");
-    newMap.set("lastname", "Kim");
-    newMap.set("company", "");
-    newMap.set("position", "");
+  let elseBlock = new CompoundTextElement("");
+  elseBlock._children = [new SimpleTextElement("Where do you work?", null)];
+  conditionBlock.elseBlock = elseBlock;
 
-    const newGeneratedText = textTemplate.generateText(newMap);
-  let newExpectedText = `Hi Svetlana!
-Where do you work?
+  // Добавляем в шаблон textWithIfBlock его составляющие
+  textTemplate._children = [
+    new SimpleTextElement("Hi {firstname}!", null),
+    conditionBlock,
+    new SimpleTextElement("Bye!", null),
+  ];
 
-Bye!
-`;
+  const newMap = new Map();
+
+  // textTemplate имеет два уровня вложенности. If-else блок первого уровня имеет переменнyю  {company},
+  // If-else блок в торого уровня имеет переменнyю {position},
+  // оставим  переменные {company} и  {position} без заданных значенй
+  newMap.set("firstname", "Svetlana");
+  newMap.set("lastname", "Kim");
+  newMap.set("company", "");
+  newMap.set("position", "");
+
+  const newGeneratedText = textTemplate.generateText(newMap);
+  let newExpectedText = `Hi Svetlana!Where do you work?Bye!`;
+
   expect(newGeneratedText).toEqual(newExpectedText);
- 
-    // т.к if-else блок первого уровня имеет вложенность с условием if{position}, то зададим переменнyю  {company} 
-    // оставив переменную  {position} для тестирования ветки  ELSE второго уровня вложенности
-    
-    newMap.set("company", "Aurigma");
-    newMap.set("position", "");
 
-    const generatedText = textTemplate.generateText(newMap);
-    const expectedText = `Hi Svetlana!
-Your company is Aurigma, right?
-What is your position?
+  // т.к if-else блок первого уровня имеет вложенность с условием if{position}, то зададим переменнyю  {company}
+  // оставив переменную  {position} для тестирования ветки  ELSE второго уровня вложенности
 
+  newMap.set("company", "Aurigma");
+  newMap.set("position", "");
 
+  const generatedText = textTemplate.generateText(newMap);
+  const expectedText = `Hi Svetlana!Your company is Aurigma, right?What is your position?Bye!`;
+  
+  expect(generatedText).toEqual(expectedText);
 
-Bye!
-`;
-expect(generatedText).toEqual(expectedText); 
+  // зададим переменную  {position} для тестирования ветки  THEN второго уровня вложенности
 
+  newMap.set("position", "Front");
 
-// зададим переменную  {position} для тестирования ветки  THEN второго уровня вложенности
+  const text = textTemplate.generateText(newMap);
+  const expected = `Hi Svetlana!Your company is Aurigma, right?Your position is Front?Bye!`;
+  
+  expect(text).toEqual(expected);
+});
 
-newMap.set("position", "Front");
+test("serialize deserialize template", () => {
+  let compound = new CompoundTextElement("something");
+  let simple = compound.children[0] as SimpleTextElement;
+  simple.split(0);
 
-const text = textTemplate.generateText(newMap);
-const expected = `Hi Svetlana!
-Your company is Aurigma, right?
-Your position is Front?
-
-
-
-Bye!
-`;
-    expect(text).toEqual(expected);  
-  });
-
-
+  let data = serializeTemplate(compound);
+  let restoredCompound = deserializeTemplate(data);
+  let sameData = serializeTemplate(restoredCompound);
+  expect(data).toEqual(sameData);
+});

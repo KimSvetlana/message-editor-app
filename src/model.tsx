@@ -276,11 +276,11 @@ export function deserializeTemplate(data: string) : CompoundTextElement
     if (value && typeof(value) == "object" && value.itemType) {
       switch (value.itemType) {
         case "ConditionBlockElement":
-          return Object.assign(new ConditionBlockElement(null), value);
+          return Object.setPrototypeOf(value, ConditionBlockElement.prototype);
         case "SimpleTextElement":
-          return Object.assign(new SimpleTextElement("", null), value);
+          return Object.setPrototypeOf(value, SimpleTextElement.prototype);
         case "CompoundTextElement":
-          return Object.assign(new CompoundTextElement(""), value);
+          return Object.setPrototypeOf(value, CompoundTextElement.prototype);
         default:
           throw new Error(`unknown itemType: ${value.itemType}`);
       }

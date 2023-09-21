@@ -18,7 +18,7 @@ export function loadTemplate(){
 
 
 export async function saveTemplate(variables: Array<string>, templateRoot: CompoundTextElement) {
-    await localStorage.setItem("variables", JSON.stringify(variables));
+    await localStorage.setItem("arrVarNames", JSON.stringify(variables));
     let serializedTemplate = serializeTemplate(templateRoot);
     await localStorage.setItem("template", serializedTemplate);
 };
