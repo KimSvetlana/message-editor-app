@@ -14,7 +14,7 @@ export interface ITemplateElement {
 }
 
 interface ISplitHandler {
-  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void;
+  onSplit(source: ITemplateElement, rightPart: string): void;
   onDelete(source: ITemplateElement): void;
 }
 
@@ -52,9 +52,9 @@ export class SimpleTextElement implements ITemplateElement {
     }
     this._splitHandler.onSplit(
       this,
-      this._simpleText.substring(0, pos),
       this._simpleText.substring(pos)
     );
+    this._simpleText = this._simpleText.substring(0, pos);
   }
 
   get simpleText() {
@@ -100,7 +100,7 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
     return this._children;
   }
 
-  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void {
+  onSplit(source: ITemplateElement, rightPart: string): void {
     const childIndex = this._children.findIndex((element) => {
       return element === source;
     });
@@ -112,11 +112,10 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
     }
 
     let newItems: Array<ITemplateElement> = [
-      new SimpleTextElement(leftPart, this),
       new ConditionBlockElement(this),
       new SimpleTextElement(rightPart, this),
     ];
-    this._children.splice(childIndex, 1, ...newItems);
+    this._children.splice(childIndex + 1, 0, ...newItems);
 
     if (this._childrenChangedListener) {
       this._childrenChangedListener([...this._children]);
@@ -128,7 +127,7 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
   generateText(variables: Map<string, string>): string {
     let res = "";
     this._children.forEach((child) => {
-      res += child.generateText(variables) + "\n";
+      res += child.generateText(variables);
     });
 
     return res;

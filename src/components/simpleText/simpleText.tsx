@@ -15,9 +15,7 @@ export interface ISimpleTextProps {
 }
 
 export function SimpleText(props: ISimpleTextProps) {
-  const [simpleText, setSimpleText] = useState(
-    props.templateObject as SimpleTextElement
-  );
+  const simpleText = props.templateObject as SimpleTextElement;
   let [displayText, setDisplayText] = useState(simpleText.simpleText);
 
   const addConditionEventSource: AddConditionEventSource =
@@ -37,7 +35,10 @@ export function SimpleText(props: ISimpleTextProps) {
 
     addConditionEventSource.callback = () => {
       simpleText.split(cursorPos);
+      setDisplayText(simpleText.simpleText);
+      event.target.focus();
     };
+
     setDisplayText(event.target.value);
 
     addVariableEventSource.callback = (variable: string) => {
