@@ -66,10 +66,42 @@ export class SimpleTextElement implements ITemplateElement {
   }
 
   generateText(variables: Map<string, string>): string {
-    let res = this._simpleText;
-    variables.forEach((value, key) => {
-      res = res.replaceAll(`{${key}}`, value);
-    });
+    let res = "";
+    let readingVariable = false;
+    let variableName = "";
+    for (let letter of this._simpleText) {
+      switch (letter) {
+        case '{':
+          if (!readingVariable) {
+            readingVariable = true;
+            variableName = "";
+          }else {
+            variableName += letter;
+          }
+          break;
+        case '}':
+          if (readingVariable) {
+            if (variables.has(variableName)) {
+              res += variables.get(variableName);
+            } else {
+              res += `{${variableName}}`;
+            }
+
+            readingVariable = false;
+            variableName = ""; 
+          } else {
+            res += letter;
+          }
+          break;
+        default:
+          if (readingVariable) {
+            variableName += letter;
+          } else {
+            res += letter;
+          }
+          break;
+      }
+    }
 
     return res;
   }
