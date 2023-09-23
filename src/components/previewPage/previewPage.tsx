@@ -10,15 +10,15 @@ export interface IPreviewPageProps {
 
 function PreviewPage(props: IPreviewPageProps) {
   let variableNames = props.variables;
-
+  
   let variablesInitial = new Map<string, string>(
     variableNames.map((varName: string) => [varName, ""])
-  );
-  const [variableValues, setVariableValues] = useState(variablesInitial);
-  const [displayText, setDisplayText] = useState(
-    props.template.generateText(variablesInitial)
-  );
-
+    );
+    const [variableValues, setVariableValues] = useState(variablesInitial);
+    const [displayText, setDisplayText] = useState(
+      props.template.generateText(variablesInitial)
+    );
+      
   const inputHandler = (varName: string) => {
     const inputChange = (event: any) => {
       let value = event.target.value;
@@ -42,7 +42,11 @@ function PreviewPage(props: IPreviewPageProps) {
             X
           </button>
         </div>
-        <div className="preview-content">{displayText}</div>
+        <div className="preview-content">
+          <pre>
+            {displayText}
+          </pre>
+        </div>
         <div className="preview-variables">
           <h3>Variables: </h3>
           <div className="variables-group">

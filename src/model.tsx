@@ -14,7 +14,7 @@ export interface ITemplateElement {
 }
 
 interface ISplitHandler {
-  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void;
+  onSplit(source: ITemplateElement, rightPart: string): void;
   onDelete(source: ITemplateElement): void;
 }
 
@@ -52,9 +52,9 @@ export class SimpleTextElement implements ITemplateElement {
     }
     this._splitHandler.onSplit(
       this,
-      this._simpleText.substring(0, pos),
       this._simpleText.substring(pos)
     );
+    this._simpleText = this._simpleText.substring(0, pos);
   }
 
   get simpleText() {
@@ -66,10 +66,42 @@ export class SimpleTextElement implements ITemplateElement {
   }
 
   generateText(variables: Map<string, string>): string {
-    let res = this._simpleText;
-    variables.forEach((value, key) => {
-      res = res.replaceAll(`{${key}}`, value);
-    });
+    let res = "";
+    let readingVariable = false;
+    let variableName = "";
+    for (let letter of this._simpleText) {
+      switch (letter) {
+        case '{':
+          if (!readingVariable) {
+            readingVariable = true;
+            variableName = "";
+          }else {
+            variableName += letter;
+          }
+          break;
+        case '}':
+          if (readingVariable) {
+            if (variables.has(variableName)) {
+              res += variables.get(variableName);
+            } else {
+              res += `{${variableName}}`;
+            }
+
+            readingVariable = false;
+            variableName = ""; 
+          } else {
+            res += letter;
+          }
+          break;
+        default:
+          if (readingVariable) {
+            variableName += letter;
+          } else {
+            res += letter;
+          }
+          break;
+      }
+    }
 
     return res;
   }
@@ -100,7 +132,7 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
     return this._children;
   }
 
-  onSplit(source: ITemplateElement, leftPart: string, rightPart: string): void {
+  onSplit(source: ITemplateElement, rightPart: string): void {
     const childIndex = this._children.findIndex((element) => {
       return element === source;
     });
@@ -112,11 +144,10 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
     }
 
     let newItems: Array<ITemplateElement> = [
-      new SimpleTextElement(leftPart, this),
       new ConditionBlockElement(this),
       new SimpleTextElement(rightPart, this),
     ];
-    this._children.splice(childIndex, 1, ...newItems);
+    this._children.splice(childIndex + 1, 0, ...newItems);
 
     if (this._childrenChangedListener) {
       this._childrenChangedListener([...this._children]);
@@ -128,18 +159,28 @@ export class CompoundTextElement implements ITemplateElement, ISplitHandler {
   generateText(variables: Map<string, string>): string {
     let res = "";
     this._children.forEach((child) => {
-      res += child.generateText(variables) + "\n";
+      res += child.generateText(variables);
     });
 
     return res;
   }
 
   onDelete(source: ITemplateElement) {
-    this._children = this.children.filter((child) => child.id !== source.id);
+    let childIndex = this._children.findIndex((element) => {
+      return element === source;
+    });
+    
+    // Проверка, что найден и что есть элементы до него и после него
+    if (childIndex === -1 || childIndex === 0 || childIndex === this._children.length - 1) {
+      throw new Error(`Can't remove element with index: ${childIndex}`);
+    }
 
-    let newText = this.generateText(new Map());
-    let newItem = new SimpleTextElement(newText, this);
-    this._children.splice(0, this._children.length, newItem);
+    let beforeItem = this._children[childIndex -1];
+    let afterItem = this._children[childIndex + 1];
+    let emptyMap = new Map<string, string>();
+    let newItem = new SimpleTextElement(beforeItem.generateText(emptyMap) + afterItem.generateText(emptyMap), this);
+
+    this._children.splice(childIndex - 1, 3, newItem);
 
     if (this._childrenChangedListener) {
       this._childrenChangedListener([...this._children]);
@@ -235,11 +276,11 @@ export function deserializeTemplate(data: string) : CompoundTextElement
     if (value && typeof(value) == "object" && value.itemType) {
       switch (value.itemType) {
         case "ConditionBlockElement":
-          return Object.assign(new ConditionBlockElement(null), value);
+          return Object.setPrototypeOf(value, ConditionBlockElement.prototype);
         case "SimpleTextElement":
-          return Object.assign(new SimpleTextElement("", null), value);
+          return Object.setPrototypeOf(value, SimpleTextElement.prototype);
         case "CompoundTextElement":
-          return Object.assign(new CompoundTextElement(""), value);
+          return Object.setPrototypeOf(value, CompoundTextElement.prototype);
         default:
           throw new Error(`unknown itemType: ${value.itemType}`);
       }
